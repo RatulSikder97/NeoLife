@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         homeWebSetting.setDomStorageEnabled(true);
         homeWebView.addJavascriptInterface(new HomeWebInterface(this), "ANDROID");
         homeWebView.clearCache(true);
-
         homeWebView.loadUrl("192.168.10.91:80");
     }
 
