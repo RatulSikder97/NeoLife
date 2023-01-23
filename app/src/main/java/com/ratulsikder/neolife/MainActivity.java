@@ -3,7 +3,10 @@ package com.ratulsikder.neolife;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
@@ -11,6 +14,13 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     WebView homeWebView;
@@ -53,6 +63,24 @@ public class MainActivity extends AppCompatActivity {
         @JavascriptInterface
         public void showToast(String toast) {
             Toast.makeText(webContext, toast, Toast.LENGTH_SHORT).show();
+        }
+
+        @JavascriptInterface
+        public String renderAllTask() {
+            TaskHelper taskHelper = new TaskHelper(getBaseContext());
+            SQLiteDatabase taskHelperDb = taskHelper.getReadableDatabase();
+            Cursor cursor = taskHelperDb.query(TaskContract.TaskEntry.TABLE_NAME, new String[]{BaseColumns._ID, TaskContract.TaskEntry.COLUMN_NAME_TITLE, TaskContract.TaskEntry.COLUMN_NAME_SUBTITLE}, null, null,null, null, null);
+
+            List tasks = new ArrayList<JSONObject>();
+            while(cursor.moveToNext()) {
+                Task task = new Task();
+                task.setTitle(cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.TaskEntry.COLUMN_NAME_TITLE)));
+                task.setSubtitle(cursor.getString(cursor.getColumnIndexOrThrow(TaskContract.TaskEntry.COLUMN_NAME_SUBTITLE)));
+                tasks.add(task);
+            }
+            cursor.close();
+
+            return   new Gson().toJson(tasks);
         }
     }
 //
